@@ -1,8 +1,27 @@
-# 应用服务 WEB 访问端口
-server.port=8080
-#下面这些内容是为了让MyBatis映射
-#指定Mybatis的Mapper文件
-mybatis.mapper-locations=classpath:mappers/*xml
-#指定Mybatis的实体目录
-mybatis.type-aliases-package=com.smlDimple.dimpleCompanionChain.mybatis.entity
-
+# 公共配置文件
+spring:
+  application:
+    name: dimpleCompanionChain
+  # DataSource Config
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://sh-cynosdbmysql-grp-m1qca2zg.sql.tencentcdb.com:29852/dimple_companion_chain?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: csj406915.
+  # session 失效时间
+  session:
+    timeout: 86400
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+# mybatis-plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+  # 逻辑删除配置
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
