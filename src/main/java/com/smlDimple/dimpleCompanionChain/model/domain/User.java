@@ -86,6 +86,11 @@ public class User implements Serializable {
      */
     private String orderNum;
 
+    /**
+     * 标签 JSON
+     */
+    private String tags;
+
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
