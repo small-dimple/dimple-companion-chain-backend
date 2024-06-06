@@ -11,9 +11,14 @@ spring:
   # session 失效时间
   session:
     timeout: 86400
+  mvc:
+    path match:
+#            路径匹配策略，默认是 ANT_PATH_MATCHER,解决springboot 2.6.x 版本路径匹配问题
+      matching-strategy: ANT_PATH_MATCHER
 server:
   port: 8080
   servlet:
+#    这样的配置有助于将你的应用与其他可能也在同一服务器上运行的服务或应用隔离开来，或者用于版本控制（例如，/v1/api/users 和 /v2/api/users）。
     context-path: /api
 # mybatis-plus配置
 mybatis-plus:
