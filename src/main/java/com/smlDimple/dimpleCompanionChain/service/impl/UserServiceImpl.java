@@ -203,14 +203,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         Gson gson = new Gson();
-
-
         /*
         内存查询
          */
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         List<User> userList = userMapper.selectList(queryWrapper);
-        userList.stream().filter(user -> {
+        return userList.stream().filter(user -> {
             String tagsStr = user.getTags();
             if (StringUtils.isBlank(tagsStr)) {
                 return false;
@@ -230,8 +228,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }).map(this::getSafetyUser).collect(Collectors.toList());
 
         // 脱敏
-        return userList.stream().map(this::getSafetyUser).collect(Collectors.toList());
+
     }
+
 
     /**
      * 根据标签搜索用户

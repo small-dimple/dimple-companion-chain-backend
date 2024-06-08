@@ -1,7 +1,7 @@
 package com.smlDimple.dimpleCompanionChain.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.fasterxml.jackson.databind.ser.Serializers;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.smlDimple.dimpleCompanionChain.common.*;
 import com.smlDimple.dimpleCompanionChain.exception.BusinessException ;
 import com.smlDimple.dimpleCompanionChain.model.domain.User ;
@@ -10,10 +10,8 @@ import com.smlDimple.dimpleCompanionChain.model.domain.request.UserRegisterReque
 import com.smlDimple.dimpleCompanionChain.service.UserService ;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +21,9 @@ import static com.smlDimple.dimpleCompanionChain.contant.UserConstant .USER_LOGI
 
 @RestController
 @RequestMapping("/user")
+//@CrossOrigin可以解决跨域问题，origins配置可以跨域访问的地址，但是只能防止前端向你发送请求
+//todo 跨域问题有待学习
+@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 
     @Resource
@@ -119,6 +120,18 @@ public class UserController {
         List<User> userList = userService.list(queryWrapper);
         List<User> list = userList.stream().map(user -> userService.getSafetyUser(user)).collect(Collectors.toList());
         return ResultUtils.success(list);
+    }
+
+
+
+    @GetMapping("/search/tags")
+    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tigNameList) {
+        if(CollectionUtils.isEmpty(tigNameList)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<User> userList = userService.searchUsersByTags(tigNameList);
+        return ResultUtils.success(userList);
+
     }
 
     @PostMapping("/delete")
