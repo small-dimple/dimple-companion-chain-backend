@@ -1,32 +1,25 @@
-package com.smlDimple.dimpleCompanionChain;
+package com.smlDimple.dimpleCompanionChain.once;
 
 import com.alibaba.excel.EasyExcel;
 import com.google.gson.Gson;
 import com.smlDimple.dimpleCompanionChain.model.domain.ExcelEntity;
 import com.smlDimple.dimpleCompanionChain.utils.ExcelListenerUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest
+/**
+ * @Author: small-dimple
+ **/
 @Slf4j
-class DimpleCompanionChainApplicationTests {
-
-    Gson gson = new Gson();
-
-    @Test
-    void contextLoads() {
-    }
+public class ReadUserExcel {
 
 
     /**
      * 方式一：
      * 下面是通过监听器的方式读取Excel文件
      */
-    @Test
     public void indexOrNameRead() {
 //        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         String fileName = "";//输入读取的文件路径
@@ -38,7 +31,8 @@ class DimpleCompanionChainApplicationTests {
      * 方式二：
      * 同步的返回，不推荐使用，如果数据量大会把数据放到内存里面
      */
-    @Test
+
+    Gson gson = new Gson();
     public void synchronousRead() {
 //        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         String fileName = "";//输入读取的文件路径
@@ -54,6 +48,4 @@ class DimpleCompanionChainApplicationTests {
             log.info("读取到数据:{}", gson.toJson(data));
         }
     }
-
-
 }

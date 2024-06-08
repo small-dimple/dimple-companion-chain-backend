@@ -1,5 +1,7 @@
 # 公共配置文件
 spring:
+  profiles:
+    default: dev
   application:
     name: dimpleCompanionChain
   # DataSource Config
@@ -13,7 +15,7 @@ spring:
     timeout: 86400
   mvc:
     path match:
-#            路径匹配策略，默认是 ANT_PATH_MATCHER,解决springboot 2.6.x 版本路径匹配问题
+#   这里是Knife4j出现的版本不匹配，路径匹配策略，默认是 ANT_PATH_MATCHER,解决springboot 2.6.x 版本路径匹配问题
       matching-strategy: ANT_PATH_MATCHER
 server:
   port: 8080
