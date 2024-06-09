@@ -3,20 +3,21 @@ package com.smlDimple.dimpleCompanionChain.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.smlDimple.dimpleCompanionChain.common.*;
-import com.smlDimple.dimpleCompanionChain.exception.BusinessException ;
-import com.smlDimple.dimpleCompanionChain.model.domain.User ;
-import com.smlDimple.dimpleCompanionChain.model.domain.request.UserLoginRequest ;
-import com.smlDimple.dimpleCompanionChain.model.domain.request.UserRegisterRequest ;
-import com.smlDimple.dimpleCompanionChain.service.UserService ;
+import com.smlDimple.dimpleCompanionChain.exception.BusinessException;
+import com.smlDimple.dimpleCompanionChain.model.domain.User;
+import com.smlDimple.dimpleCompanionChain.model.domain.request.UserLoginRequest;
+import com.smlDimple.dimpleCompanionChain.model.domain.request.UserRegisterRequest;
+import com.smlDimple.dimpleCompanionChain.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.smlDimple.dimpleCompanionChain.contant.UserConstant .ADMIN_ROLE;
-import static com.smlDimple.dimpleCompanionChain.contant.UserConstant .USER_LOGIN_STATE;
+import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.ADMIN_ROLE;
+import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.USER_LOGIN_STATE;
 
 
 @RestController
@@ -107,10 +108,16 @@ public class UserController {
         return ResultUtils.success(safetyUser);
     }
 
-
+    /**
+     * 查询用户信息
+     *
+     * @param username
+     * @param request
+     * @return
+     */
     @GetMapping("/search")
     public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request) {
-        if (!isAdmin(request)) {
+        if (!userService.isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH, "缺少管理员权限");
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -122,11 +129,15 @@ public class UserController {
         return ResultUtils.success(list);
     }
 
-
-
+    /**
+     * 根据标签查询用户信息
+     *
+     * @param tigNameList
+     * @return
+     */
     @GetMapping("/search/tags")
     public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tigNameList) {
-        if(CollectionUtils.isEmpty(tigNameList)){
+        if (CollectionUtils.isEmpty(tigNameList)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         List<User> userList = userService.searchUsersByTags(tigNameList);
@@ -134,9 +145,44 @@ public class UserController {
 
     }
 
+    /**
+     * 根据传入id获取用户信息
+     *
+     * @param userSearchId
+     * @return
+     */
+    @GetMapping("/search/showProf")
+    public BaseResponse<User> getUserById(@RequestParam Integer userSearchId) {
+        if (userSearchId == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN);
+        }
+        User user = userService.getById(userSearchId);
+        User safetyUser = userService.getSafetyUser(user);
+        return ResultUtils.success(safetyUser);
+    }
+
+    @PostMapping("/update")
+    public BaseResponse<Integer> updateUser(@RequestBody User user,HttpServletRequest request) {
+        //1. 校验参数是否为空
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        User loginUser = userService.getLoginUser(request);
+        int result = userService.updateUser(user,loginUser);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 删除用户(逻辑删除)
+     *
+     * @param id
+     * @param request
+     * @return
+     */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request) {
-        if (!isAdmin(request)) {
+        if (!userService.isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         if (id <= 0) {
@@ -146,17 +192,6 @@ public class UserController {
         return ResultUtils.success(b);
     }
 
-    /**
-     * 是否为管理员
-     *
-     * @param request
-     * @return
-     */
-    private boolean isAdmin(HttpServletRequest request) {
-        // 仅管理员可查询
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User user = (User) userObj;
-        return user != null && user.getUserRole() == ADMIN_ROLE;
-    }
+
 
 }
