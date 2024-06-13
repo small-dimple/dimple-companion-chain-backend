@@ -2,18 +2,23 @@ package com.smlDimple.dimpleCompanionChain.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.smlDimple.dimpleCompanionChain.common.*;
 import com.smlDimple.dimpleCompanionChain.exception.BusinessException;
 import com.smlDimple.dimpleCompanionChain.model.domain.User;
 import com.smlDimple.dimpleCompanionChain.model.domain.request.UserLoginRequest;
 import com.smlDimple.dimpleCompanionChain.model.domain.request.UserRegisterRequest;
 import com.smlDimple.dimpleCompanionChain.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.ADMIN_ROLE;
@@ -25,10 +30,14 @@ import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.USER_LOGIN
 //@CrossOrigin可以解决跨域问题，origins配置可以跨域访问的地址，但是只能防止前端向你发送请求
 //todo 跨域问题有待学习
 @CrossOrigin(origins = "http://localhost:5173")
+@Slf4j
 public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 用户注册
@@ -161,13 +170,39 @@ public class UserController {
         return ResultUtils.success(safetyUser);
     }
 
+    @GetMapping("/recommend")
+    public BaseResponse<Page<User>> recommendUsers(long pageSize, long pageNum, HttpServletRequest request) {
+
+
+        User loginUser = userService.getLoginUser(request);
+        String redisKey = String.format("dimple:user:recommend:%s",loginUser.getId());
+        ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
+        //如果有缓存直接读缓存
+        Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
+        if (userPage != null) {
+            return ResultUtils.success(userPage);
+        }
+        //如果没有缓存则从数据库读取数据
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        userPage = userService.page(new Page<>(pageNum,pageSize),queryWrapper);
+        try {
+            /*
+            ！！！！！！！！！！！！！一定要设置过期时间
+             */
+            valueOperations.set(redisKey,userPage,30000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            log.error("redis set key error",e);
+        }
+        return ResultUtils.success(userPage);
+    }
+
     @PostMapping("/update")
     public BaseResponse<Integer> updateUser(@RequestBody User user,HttpServletRequest request) {
         //1. 校验参数是否为空
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-
+        //todo 校验用户是否进行修改，如果传入的值是空，则不进行update
         User loginUser = userService.getLoginUser(request);
         int result = userService.updateUser(user,loginUser);
         return ResultUtils.success(result);
