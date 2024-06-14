@@ -2,7 +2,7 @@ package com.smlDimple.dimpleCompanionChain;
 
 import com.alibaba.excel.EasyExcel;
 import com.google.gson.Gson;
-import com.smlDimple.dimpleCompanionChain.model.domain.ExcelEntity;
+import com.smlDimple.dimpleCompanionChain.model.dto.ExcelQuery;
 import com.smlDimple.dimpleCompanionChain.utils.ExcelListenerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class DimpleCompanionChainApplicationTests {
 //        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         String fileName = "";//输入读取的文件路径
         // 这里默认读取第一个sheet
-        EasyExcel.read(fileName, ExcelEntity.class, new ExcelListenerUtil()).sheet().doRead();
+        EasyExcel.read(fileName, ExcelQuery.class, new ExcelListenerUtil()).sheet().doRead();
     }
 
     /**
@@ -43,8 +43,8 @@ class DimpleCompanionChainApplicationTests {
 //        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "demo.xlsx";
         String fileName = "";//输入读取的文件路径
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 同步读取会自动finish
-        List<ExcelEntity> excelUtilList = EasyExcel.read(fileName).head(ExcelEntity.class).sheet().doReadSync();
-        for (ExcelEntity data : excelUtilList) {
+        List<ExcelQuery> excelUtilList = EasyExcel.read(fileName).head(ExcelQuery.class).sheet().doReadSync();
+        for (ExcelQuery data : excelUtilList) {
             log.info("读取到数据:{}", gson.toJson(data));
         }
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish

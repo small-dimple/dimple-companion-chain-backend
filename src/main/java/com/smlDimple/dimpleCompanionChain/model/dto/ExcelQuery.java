@@ -1,4 +1,4 @@
-package com.smlDimple.dimpleCompanionChain.model.domain;
+package com.smlDimple.dimpleCompanionChain.model.dto;
 
 
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -13,7 +13,7 @@ import java.util.Date;
  * @author small-dimple
  */
 @Data
-public class ExcelEntity {
+public class ExcelQuery {
 
 
     // 设置excel表头名称

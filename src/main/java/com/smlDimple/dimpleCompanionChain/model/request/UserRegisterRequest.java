@@ -1,4 +1,4 @@
-package com.smlDimple.dimpleCompanionChain.model.domain.request;
+package com.smlDimple.dimpleCompanionChain.model.request;
 
 import lombok.Data;
 import java.io.Serializable;

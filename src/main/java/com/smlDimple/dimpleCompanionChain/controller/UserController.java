@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.smlDimple.dimpleCompanionChain.common.*;
 import com.smlDimple.dimpleCompanionChain.exception.BusinessException;
 import com.smlDimple.dimpleCompanionChain.model.domain.User;
-import com.smlDimple.dimpleCompanionChain.model.domain.request.UserLoginRequest;
-import com.smlDimple.dimpleCompanionChain.model.domain.request.UserRegisterRequest;
+import com.smlDimple.dimpleCompanionChain.model.request.UserLoginRequest;
+import com.smlDimple.dimpleCompanionChain.model.request.UserRegisterRequest;
 import com.smlDimple.dimpleCompanionChain.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.ADMIN_ROLE;
 import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.USER_LOGIN_STATE;
 
 

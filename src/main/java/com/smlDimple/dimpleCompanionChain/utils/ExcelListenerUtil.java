@@ -4,7 +4,7 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.util.ListUtils;
 import com.google.gson.Gson;
-import com.smlDimple.dimpleCompanionChain.model.domain.ExcelEntity;
+import com.smlDimple.dimpleCompanionChain.model.dto.ExcelQuery;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 // 有个很重要的点 readExcelUtilListener 不能被spring管理，要每次读取excel都要new,然后里面用到spring可以构造方法传进去
 @Slf4j
-public class ExcelListenerUtil implements ReadListener<ExcelEntity> {
+public class ExcelListenerUtil implements ReadListener<ExcelQuery> {
 
     /**
      * 每隔5条存储数据库，实际使用中可以100条，然后清理list ，方便内存回收
@@ -26,7 +26,7 @@ public class ExcelListenerUtil implements ReadListener<ExcelEntity> {
     /**
      * 缓存的数据
      */
-    private List<ExcelEntity> cachedDataList = ListUtils.newArrayListWithExpectedSize(BATCH_COUNT);
+    private List<ExcelQuery> cachedDataList = ListUtils.newArrayListWithExpectedSize(BATCH_COUNT);
     /**
      * 假设这个是一个DAO，当然有业务逻辑这个也可以是一个service。当然如果不用存储这个对象没用。
      */
@@ -55,7 +55,7 @@ public class ExcelListenerUtil implements ReadListener<ExcelEntity> {
     Gson gson = new Gson();
 
     @Override
-    public void invoke(ExcelEntity data, AnalysisContext context) {
+    public void invoke(ExcelQuery data, AnalysisContext context) {
         log.info("解析到一条数据:{}", gson.toJson(data));
         cachedDataList.add(data);
         // 达到BATCH_COUNT了，需要去存储一次数据库，防止数据几万条数据在内存，容易OOM
