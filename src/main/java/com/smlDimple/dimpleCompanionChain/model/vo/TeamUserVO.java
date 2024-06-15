@@ -1,23 +1,29 @@
-package com.smlDimple.dimpleCompanionChain.model.domain;
+package com.smlDimple.dimpleCompanionChain.model.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import javassist.SerialVersionUID;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
- * 队伍
- * @TableName team
- */
-@TableName(value ="team")
+ * 队伍与用户信息封装类（脱敏）
+ *
+ * @Author: small-dimple
+ **/
 @Data
-public class Team implements Serializable {
+public class TeamUserVO  implements Serializable {
+
+
+    private static final long serialVersionUID = 7405924160511105618L;
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
@@ -51,10 +57,6 @@ public class Team implements Serializable {
      */
     private Integer status;
 
-    /**
-     * 密码
-     */
-    private String password;
 
     /**
      * 创建时间
@@ -66,12 +68,11 @@ public class Team implements Serializable {
      */
     private Date updateTime;
 
-    /**
-     * 是否删除
-     */
-    @TableLogic
-    private Integer isDelete;
 
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
+    /**
+     * 创建人用户信息
+     */
+    UserVO creatUser;
+
+
 }

@@ -7,7 +7,11 @@ import com.smlDimple.dimpleCompanionChain.common.ErrorCode;
 import com.smlDimple.dimpleCompanionChain.common.ResultUtils;
 import com.smlDimple.dimpleCompanionChain.exception.BusinessException;
 import com.smlDimple.dimpleCompanionChain.model.domain.Team;
+import com.smlDimple.dimpleCompanionChain.model.domain.User;
 import com.smlDimple.dimpleCompanionChain.model.dto.TeamQuery;
+import com.smlDimple.dimpleCompanionChain.model.request.TeamAddRequest;
+import com.smlDimple.dimpleCompanionChain.model.request.TeamUpdateRequest;
+import com.smlDimple.dimpleCompanionChain.model.vo.TeamUserVO;
 import com.smlDimple.dimpleCompanionChain.service.TeamService;
 import com.smlDimple.dimpleCompanionChain.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -35,16 +40,17 @@ public class TeamController {
     private UserService userService;
 
 
+
     @PostMapping("/add")
-    public BaseResponse<Long> addTeam(@RequestBody Team team){
-        if(team == null){
+    public BaseResponse<Long> addTeam(@RequestBody TeamAddRequest teamAddRequest , HttpServletRequest request){
+        if(teamAddRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean save = teamService.save(team);
-        if(!save){
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加失败");
-        }
-        return ResultUtils.success(team.getId());
+        User loginUser = userService.getLoginUser(request);
+        Team team = new Team();
+        BeanUtils.copyProperties(teamAddRequest, team);
+        long teamId = teamService.addTeam(team, loginUser);
+        return ResultUtils.success(teamId);
     }
 
 
@@ -62,11 +68,12 @@ public class TeamController {
 
 
     @PostMapping("/update")
-    public BaseResponse<Boolean> updateTeam(@RequestBody Team team){
-        if(team == null){
+    public BaseResponse<Boolean> updateTeam(@RequestBody TeamUpdateRequest teamUpdateRequest , HttpServletRequest request){
+        if(teamUpdateRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean result = teamService.updateById(team);
+        User loginUser = userService.getLoginUser(request);
+        boolean result = teamService.updateTeam(teamUpdateRequest, loginUser);
         if(!result){
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "修改失败");
         }
@@ -86,20 +93,15 @@ public class TeamController {
     }
 
 
-    @GetMapping("/list")
-    public BaseResponse<List<Team>> listTeams(TeamQuery teamQuery) {
-        if (teamQuery == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        Team team = new Team();
-        BeanUtils.copyProperties(team, teamQuery);
 
-        QueryWrapper<Team> queryWrapper = new QueryWrapper<>(team);
-        List<Team> resultList = teamService.list(queryWrapper);
-        if (resultList == null) {
-            throw new BusinessException(ErrorCode.NULL_ERROR, "队伍不存在");
+    @GetMapping("/list")
+    public BaseResponse<List<TeamUserVO>> listTeams(TeamQuery teamQuery , HttpServletRequest request) {
+        if(teamQuery == null){
+            throw  new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        return ResultUtils.success(resultList);
+        boolean isAdmin = userService.isAdmin(request);
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery , isAdmin);
+        return ResultUtils.success(teamList);
     }
 
     @GetMapping("/list/page")
@@ -114,7 +116,7 @@ public class TeamController {
         }
         Page<Team> page = new Page<>(current, pageSize);
         Team team = new Team();
-        BeanUtils.copyProperties(team, teamQuery);
+        BeanUtils.copyProperties(teamQuery,team );
 
         QueryWrapper<Team> queryWrapper = new QueryWrapper<>(team);
         Page<Team> resultPage = teamService.page(page, queryWrapper);

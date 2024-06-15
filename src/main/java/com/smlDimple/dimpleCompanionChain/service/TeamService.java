@@ -4,6 +4,12 @@ package com.smlDimple.dimpleCompanionChain.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.smlDimple.dimpleCompanionChain.model.domain.Team;
 import com.smlDimple.dimpleCompanionChain.model.domain.User;
+import com.smlDimple.dimpleCompanionChain.model.dto.TeamQuery;
+import com.smlDimple.dimpleCompanionChain.model.request.TeamUpdateRequest;
+import com.smlDimple.dimpleCompanionChain.model.vo.TeamUserVO;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author small-dimple
@@ -21,4 +27,21 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     long addTeam(Team team, User loginUser);
+
+    /**
+     * 获取队伍列表(搜索队伍）
+     *
+     * @param teamQuery
+     * @return
+     */
+    List<TeamUserVO> listTeams(TeamQuery teamQuery, boolean isAdmin);
+
+    /**
+     * 更新队伍信息
+     *
+     * @param teamUpdateRequest
+     * @param loginUser
+     * @return
+     */
+    boolean updateTeam(TeamUpdateRequest teamUpdateRequest,User loginUser);
 }

@@ -15,8 +15,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 public enum TeamStatusEnum {
 
 
-    PUBLICITY(0, "正常"),
-    PRIVATIZE(1, "私有"),
+    PUBLIC(0, "正常"),
+    PRIVATE(1, "私有"),
     ENCRYPT(2, "加密");
 
     private final int value;
