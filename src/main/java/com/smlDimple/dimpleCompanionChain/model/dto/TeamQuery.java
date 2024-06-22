@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: small-dimple
@@ -20,6 +21,10 @@ public class TeamQuery extends PageRequest {
      */
     private Long id;
 
+    /**
+     * id列表
+     */
+    List<Long> idList;
     /**
      * 搜索关键词（支持对名称以及描述进行搜索）
      */

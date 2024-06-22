@@ -2,6 +2,8 @@ package com.smlDimple.dimpleCompanionChain.service;
 
 import com.smlDimple.dimpleCompanionChain.model.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.smlDimple.dimpleCompanionChain.model.vo.UserVO;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -91,6 +93,12 @@ public interface UserService extends IService<User> {
      */
     boolean isAdmin(User loginUser);
 
-
-
+    /**
+     * 获取匹配用户
+     *
+     * @param num
+     * @param loginUser
+     * @return
+     */
+    List<User> matchUsers(long num, User loginUser);
 }

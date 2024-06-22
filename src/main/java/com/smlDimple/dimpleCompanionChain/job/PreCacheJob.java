@@ -42,7 +42,7 @@ public class PreCacheJob {
     public void doCacheRecommendUser(){
         RLock lock = redissonClient.getLock("dimple:precachejob:docache:lock");
         try {
-            if(lock.tryLock(0,30000L, TimeUnit.MILLISECONDS))
+            if(lock.tryLock(0,-1, TimeUnit.MILLISECONDS))
             {
                 for(long userId: mainUserList){
                     QueryWrapper<User> queryWrapper = new QueryWrapper<>();

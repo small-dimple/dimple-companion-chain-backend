@@ -8,6 +8,7 @@ import com.smlDimple.dimpleCompanionChain.exception.BusinessException;
 import com.smlDimple.dimpleCompanionChain.model.domain.User;
 import com.smlDimple.dimpleCompanionChain.model.request.UserLoginRequest;
 import com.smlDimple.dimpleCompanionChain.model.request.UserRegisterRequest;
+import com.smlDimple.dimpleCompanionChain.model.vo.UserVO;
 import com.smlDimple.dimpleCompanionChain.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -174,7 +175,7 @@ public class UserController {
 
 
         User loginUser = userService.getLoginUser(request);
-        String redisKey = String.format("dimple:user:recommend:%s",loginUser.getId());
+        String redisKey = String.format("dimple:user:recommend:%s", loginUser.getId());
         ValueOperations<String, Object> valueOperations = redisTemplate.opsForValue();
         //如果有缓存直接读缓存
         Page<User> userPage = (Page<User>) valueOperations.get(redisKey);
@@ -183,27 +184,27 @@ public class UserController {
         }
         //如果没有缓存则从数据库读取数据
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        userPage = userService.page(new Page<>(pageNum,pageSize),queryWrapper);
+        userPage = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
         try {
             /*
             ！！！！！！！！！！！！！一定要设置过期时间
              */
-            valueOperations.set(redisKey,userPage,30000, TimeUnit.MILLISECONDS);
+            valueOperations.set(redisKey, userPage, 30000, TimeUnit.MILLISECONDS);
         } catch (Exception e) {
-            log.error("redis set key error",e);
+            log.error("redis set key error", e);
         }
         return ResultUtils.success(userPage);
     }
 
     @PostMapping("/update")
-    public BaseResponse<Integer> updateUser(@RequestBody User user,HttpServletRequest request) {
+    public BaseResponse<Integer> updateUser(@RequestBody User user, HttpServletRequest request) {
         //1. 校验参数是否为空
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         //todo 校验用户是否进行修改，如果传入的值是空，则不进行update
         User loginUser = userService.getLoginUser(request);
-        int result = userService.updateUser(user,loginUser);
+        int result = userService.updateUser(user, loginUser);
         return ResultUtils.success(result);
     }
 
@@ -226,6 +227,21 @@ public class UserController {
         return ResultUtils.success(b);
     }
 
+    /**
+     * 获取最推荐的用户
+     *
+     * @return
+     */
 
+    @GetMapping
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
+
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUsers(num, loginUser));
+
+    }
 
 }

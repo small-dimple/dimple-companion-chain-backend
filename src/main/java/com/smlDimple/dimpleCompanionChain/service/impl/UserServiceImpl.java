@@ -7,20 +7,26 @@ import com.google.gson.reflect.TypeToken;
 import com.smlDimple.dimpleCompanionChain.common.ErrorCode;
 import com.smlDimple.dimpleCompanionChain.exception.BusinessException;
 import com.smlDimple.dimpleCompanionChain.model.domain.User;
+import com.smlDimple.dimpleCompanionChain.model.vo.UserVO;
 import com.smlDimple.dimpleCompanionChain.service.UserService;
 import com.smlDimple.dimpleCompanionChain.mapper.UserMapper;
+import com.smlDimple.dimpleCompanionChain.utils.AlgorithmUtil;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
+import javax.imageio.stream.IIOByteBuffer;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.ADMIN_ROLE;
 import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.USER_LOGIN_STATE;
@@ -236,7 +242,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 更新用户信息
      *
-     * @param user 修改的用户
+     * @param user      修改的用户
      * @param loginUser 登录的用户
      * @return
      */
@@ -244,14 +250,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public int updateUser(User user, User loginUser) {
         //如果是管理员,可以更新任意用户
         Long userId = user.getId();
-        if(userId<=0){
+        if (userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        if(!isAdmin(loginUser) && !userId.equals(loginUser.getId())){
+        if (!isAdmin(loginUser) && !userId.equals(loginUser.getId())) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }
         User oldUser = userMapper.selectById(userId);
-        if(oldUser == null){
+        if (oldUser == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         return userMapper.updateById(user);
@@ -303,6 +309,65 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public boolean isAdmin(User loginUser) {
         // 仅管理员可查询
         return loginUser != null && loginUser.getUserRole() == ADMIN_ROLE;
+    }
+
+    /**
+     * 匹配用户
+     *
+     * @param num
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public List<User> matchUsers(long num, User loginUser) {
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        //只查询需要的数据
+        queryWrapper.select("id", "tags");
+        //过滤掉为空的标签数据
+        queryWrapper.isNotNull("tags");
+        List<User> userList = this.list(queryWrapper);
+        String tags = loginUser.getTags();
+        Gson gson = new Gson();
+        List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>() {
+        }.getType());
+        List<Pair<User, Long>> userDistanceList = new ArrayList<>();
+//        SortedMap<Integer, Long> indexDistanceMap = new TreeMap<>();
+        for (User user : userList) {
+            String userTags = user.getTags();
+            if (StringUtils.isBlank(userTags) || Objects.equals(user.getId(), loginUser.getId())) {
+                continue;
+            }
+            List<String> userTagList = gson.fromJson(userTags, new TypeToken<List<String>>() {
+            }.getType());
+            //计算分数
+            long distance = AlgorithmUtil.minDistance(tagList, userTagList);
+            userDistanceList.add(new Pair<>(user, distance));
+        }
+        //根据编辑距离小到大排序
+        List<Pair<User, Long>> topUserPairList = userDistanceList.stream()
+                .sorted((a, b) -> (int) (a.getValue() - b.getValue()))
+                .limit(num)
+                .collect(Collectors.toList());
+        //记录原本顺序的UserID列表
+        List<Long> userIdList = topUserPairList.stream()
+                .map(Pair -> Pair.getKey().getId())
+                .collect(Collectors.toList());
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.in("id", userIdList);
+        //1：user1 ;2 :user2
+        Map<Long, List<User>> userIdUserListMap = this.list(userQueryWrapper)
+                .stream()
+                .map(this::getSafetyUser)
+                .collect(Collectors.groupingBy(User::getId));
+        List<User> finalUserList = new ArrayList<>();
+        for (Long userId : userIdList) {
+        //根据排序的userIdList的id从Map中查出数据插入到finalUserList中，并得到与UserIdList一样顺序的用户
+            finalUserList.add(userIdUserListMap.get(userId).get(0));
+        }
+
+        return finalUserList;
+
     }
 
 

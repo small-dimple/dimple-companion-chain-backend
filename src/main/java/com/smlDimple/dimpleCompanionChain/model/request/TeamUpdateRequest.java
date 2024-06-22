@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * 更新队伍请求体
+ *
  * @Author: small-dimple
  **/
 @Data

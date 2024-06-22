@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.smlDimple.dimpleCompanionChain.model.domain.Team;
 import com.smlDimple.dimpleCompanionChain.model.domain.User;
 import com.smlDimple.dimpleCompanionChain.model.dto.TeamQuery;
+import com.smlDimple.dimpleCompanionChain.model.request.TeamJoinRequest;
+import com.smlDimple.dimpleCompanionChain.model.request.TeamQuitRequest;
 import com.smlDimple.dimpleCompanionChain.model.request.TeamUpdateRequest;
 import com.smlDimple.dimpleCompanionChain.model.vo.TeamUserVO;
 
@@ -44,4 +46,30 @@ public interface TeamService extends IService<Team> {
      * @return
      */
     boolean updateTeam(TeamUpdateRequest teamUpdateRequest,User loginUser);
+
+    /**
+     * 加入队伍
+     *
+     * @param teamJoinRequest
+     * @param loginUser
+     * @return
+     */
+    boolean joinTeam(TeamJoinRequest teamJoinRequest, User loginUser);
+
+    /**
+     * 退出队伍
+     *
+     * @param teamQuitRequest
+     * @param loginUser
+     * @return
+     */
+    boolean quitTeam(TeamQuitRequest teamQuitRequest, User loginUser);
+
+    /**
+     * 删除队伍
+     *
+     * @param id
+     * @return
+     */
+    boolean deleteTeam(long id, User loginUser);
 }

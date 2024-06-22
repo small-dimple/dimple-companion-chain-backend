@@ -17,7 +17,7 @@ import java.util.List;
  * @Author: small-dimple
  **/
 @Data
-public class TeamUserVO  implements Serializable {
+public class TeamUserVO implements Serializable {
 
 
     private static final long serialVersionUID = 7405924160511105618L;
@@ -72,7 +72,17 @@ public class TeamUserVO  implements Serializable {
     /**
      * 创建人用户信息
      */
-    UserVO creatUser;
+    private UserVO creatUser;
+
+    /**
+     * 已加入的用户数量
+     */
+    private Integer hasJoinNum;
+
+    /**
+     * 是否已加入队伍
+     */
+    private boolean hasJoin = false;
 
 
 }
