@@ -3,6 +3,7 @@ package com.smlDimple.dimpleCompanionChain.model.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -38,7 +39,6 @@ public class Team implements Serializable {
     /**
      * 过期时间
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date expireTime;
 
     /**

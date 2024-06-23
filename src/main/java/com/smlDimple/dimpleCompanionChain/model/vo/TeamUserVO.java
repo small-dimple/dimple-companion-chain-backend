@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import javassist.SerialVersionUID;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -44,7 +45,6 @@ public class TeamUserVO implements Serializable {
     /**
      * 过期时间
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date expireTime;
 
     /**
@@ -72,7 +72,7 @@ public class TeamUserVO implements Serializable {
     /**
      * 创建人用户信息
      */
-    private UserVO creatUser;
+    private UserVO createUser;
 
     /**
      * 已加入的用户数量
@@ -86,3 +86,13 @@ public class TeamUserVO implements Serializable {
 
 
 }
+
+
+
+
+
+
+
+
+
+

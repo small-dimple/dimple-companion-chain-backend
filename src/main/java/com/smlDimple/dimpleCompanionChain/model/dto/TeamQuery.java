@@ -24,7 +24,7 @@ public class TeamQuery extends PageRequest {
     /**
      * id列表
      */
-    List<Long> idList;
+    private List<Long> idList;
     /**
      * 搜索关键词（支持对名称以及描述进行搜索）
      */
@@ -55,6 +55,7 @@ public class TeamQuery extends PageRequest {
      * 0 - 公开，1 - 私有，2 - 加密
      */
     private Integer status;
+
 
 
 }

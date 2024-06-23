@@ -52,6 +52,12 @@ public class UserVO implements Serializable {
      */
     private String email;
 
+
+    /**
+     * 标签 JSON
+     */
+    private String tags;
+
     /**
      * 状态 0 - 正常
      */
@@ -77,11 +83,8 @@ public class UserVO implements Serializable {
      */
     private String orderNum;
 
-    /**
-     * 标签 JSON
-     */
-    private String tags;
 
 
 
 }
+

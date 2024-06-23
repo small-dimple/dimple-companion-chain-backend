@@ -20,6 +20,8 @@ import com.smlDimple.dimpleCompanionChain.service.TeamService;
 import com.smlDimple.dimpleCompanionChain.service.UserService;
 import com.smlDimple.dimpleCompanionChain.service.UserTeamService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +56,7 @@ public class TeamController {
 
 
     @PostMapping("/add")
-    public BaseResponse<Long> addTeam(@RequestBody TeamAddRequest teamAddRequest , HttpServletRequest request){
+    public BaseResponse<Long> addTeam(@RequestBody  TeamAddRequest teamAddRequest , HttpServletRequest request){
         if(teamAddRequest == null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -92,38 +94,45 @@ public class TeamController {
 
 
 
+
     @GetMapping("/list")
-    public BaseResponse<List<TeamUserVO>> listTeams(TeamQuery teamQuery , HttpServletRequest request) {
-        if(teamQuery == null){
-            throw  new BusinessException(ErrorCode.PARAMS_ERROR);
+    public BaseResponse<List<TeamUserVO>> listTeams(TeamQuery teamQuery, HttpServletRequest request) {
+        if (teamQuery == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-
         boolean isAdmin = userService.isAdmin(request);
-        List<TeamUserVO> teamList = teamService.listTeams(teamQuery , isAdmin);
-        //判断当前用户是否加入了队伍
-        final List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
-        QueryWrapper<UserTeam> userTeamqueryWrapper = new QueryWrapper<>();
-        try {
-            User loginUser = userService.getLoginUser(request);
-            userTeamqueryWrapper.eq("userId", loginUser.getId());
-            userTeamqueryWrapper.in("teamId", teamIdList);
-            List<UserTeam> userTeamList = userTeamService.list(userTeamqueryWrapper);
-            //已加入队伍的id集合
-            Set<Long> hasJoinTeamIdSet = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toSet());
-            teamList.forEach(team -> {
-                boolean hasJoin = hasJoinTeamIdSet.contains(team.getId());
+        // 1、查询队伍列表
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, isAdmin);
+        if(CollectionUtils.isNotEmpty(teamList)) {
+            final List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
+
+
+            // 2、判断当前用户是否已加入队伍
+            QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();
+            try {
+                User loginUser = userService.getLoginUser(request);
+                userTeamQueryWrapper.eq("userId", loginUser.getId());
+                userTeamQueryWrapper.in("teamId", teamIdList);
+                List<UserTeam> userTeamList = userTeamService.list(userTeamQueryWrapper);
+                // 已加入的队伍 id 集合
+                Set<Long> hasJoinTeamIdSet = userTeamList.stream().map(UserTeam::getTeamId).collect(Collectors.toSet());
+                teamList.forEach(team -> {
+                    boolean hasJoin = hasJoinTeamIdSet.contains(team.getId());
                     team.setHasJoin(hasJoin);
-            });
-
-
-        } catch (Exception ignored) {}
-        QueryWrapper<UserTeam> userTeamJoinqueryWrapper = new QueryWrapper<>();
-        userTeamJoinqueryWrapper.in("teamId", teamIdList);
-        List<UserTeam> userTeamList = userTeamService.list(userTeamJoinqueryWrapper);
-        Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
-        teamList.forEach(team -> team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(),new ArrayList<>()).size()));
+                });
+            } catch (Exception e) {
+            }
+            // 3、查询已加入队伍的人数
+            QueryWrapper<UserTeam> userTeamJoinQueryWrapper = new QueryWrapper<>();
+            userTeamJoinQueryWrapper.in("teamId", teamIdList);
+            List<UserTeam> userTeamList = userTeamService.list(userTeamJoinQueryWrapper);
+            // 队伍 id => 加入这个队伍的用户列表
+            Map<Long, List<UserTeam>> teamIdUserTeamList = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
+            teamList.forEach(team -> team.setHasJoinNum(teamIdUserTeamList.getOrDefault(team.getId(), new ArrayList<>()).size()));
+        }
         return ResultUtils.success(teamList);
     }
+
 
     @GetMapping("/list/page")
     public BaseResponse<Page<Team>> listTeamByPage(TeamQuery teamQuery) {

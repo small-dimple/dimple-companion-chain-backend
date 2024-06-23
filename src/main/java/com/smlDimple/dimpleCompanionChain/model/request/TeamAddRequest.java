@@ -36,7 +36,7 @@ public class TeamAddRequest implements Serializable {
     /**
      * 过期时间
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date expireTime;
 
     /**
