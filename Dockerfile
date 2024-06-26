@@ -1,5 +1,6 @@
 FROM maven:3.6.3-jdk-8-alpine as builder
 
+
 # Copy local code to the container image.
 WORKDIR /app
 COPY pom.xml .
