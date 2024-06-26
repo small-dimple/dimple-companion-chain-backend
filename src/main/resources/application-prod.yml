@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://sh-cynosdbmysql-grp-m1qca2zg.sql.tencentcdb.com:29852/dimple_companion_chain?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: csj406915.
+  session:
+      timeout: 86400
+server:
+  address: 0.0.0.0
