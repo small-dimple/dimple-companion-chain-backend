@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/team")
 //@CrossOrigin可以解决跨域问题，origins配置可以跨域访问的地址，但是只能防止前端向你发送请求
 //todo 跨域问题有待学习
-@CrossOrigin(origins = "http://localhost:5173")
+//@CrossOrigin(origins = "http://localhost:5173")
 @Slf4j
 public class TeamController {
 

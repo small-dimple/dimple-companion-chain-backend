@@ -138,6 +138,7 @@
         </dependencies>
     </dependencyManagement>
 
+
     <build>
         <plugins>
             <plugin>
@@ -156,7 +157,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.smlDimple.dimpleCompanionChain.DimpleCompanionChainApplication</mainClass>
-                    <skip>true</skip>
+<!--                    <skip>true</skip>-->
                 </configuration>
                 <executions>
                     <execution>

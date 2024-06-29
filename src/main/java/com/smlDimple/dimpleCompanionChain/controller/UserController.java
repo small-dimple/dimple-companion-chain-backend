@@ -29,7 +29,7 @@ import static com.smlDimple.dimpleCompanionChain.contant.UserConstant.USER_LOGIN
 @RequestMapping("/user")
 //@CrossOrigin可以解决跨域问题，origins配置可以跨域访问的地址，但是只能防止前端向你发送请求
 //todo 跨域问题有待学习
-@CrossOrigin(origins = "http://localhost:5173")
+//@CrossOrigin(origins = "http://localhost:5173")
 @Slf4j
 public class UserController {
 
@@ -141,15 +141,15 @@ public class UserController {
     /**
      * 根据标签查询用户信息
      *
-     * @param tigNameList
+     * @param tagNameList
      * @return
      */
     @GetMapping("/search/tags")
-    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tigNameList) {
-        if (CollectionUtils.isEmpty(tigNameList)) {
+    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        List<User> userList = userService.searchUsersByTags(tigNameList);
+        List<User> userList = userService.searchUsersByTags(tagNameList);
         return ResultUtils.success(userList);
 
     }
@@ -233,7 +233,7 @@ public class UserController {
      * @return
      */
 
-    @GetMapping
+    @GetMapping("/match")
     public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
 
         if (num <= 0 || num > 20) {

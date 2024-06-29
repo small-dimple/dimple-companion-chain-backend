@@ -351,8 +351,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .collect(Collectors.toList());
         //记录原本顺序的UserID列表
         List<Long> userIdList = topUserPairList.stream()
-                .map(Pair -> Pair.getKey().getId())
+                .map(pair -> pair.getKey().getId())
                 .collect(Collectors.toList());
+
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         userQueryWrapper.in("id", userIdList);
         //1：user1 ;2 :user2
